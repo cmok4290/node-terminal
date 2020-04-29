@@ -1,5 +1,7 @@
 FROM ubuntu:latest
 
-WORKDIR /app
+WORKDIR /home
 
 COPY . .
+
+WORKDIR /home/me
