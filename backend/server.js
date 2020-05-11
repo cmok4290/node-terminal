@@ -1,16 +1,20 @@
+// server.js
 'use strict';
-
-const express = require('express');
+const app = require('express')();
+const http = require('http').createServer(app);
+const SocketWrapper = require('./SocketWrapper');
 
 // constants
 const PORT = 8080;
-const HOST = '0.0.0.0';
+const HOST = '127.0.0.1';
 
 // app
-const app = express();
 app.get('/', (req, res) => {
-  res.send('Connecting...');
+  res.send('Terminal Server Running...');
 });
 
-app.listen(PORT, HOST);
-console.log(`Running on http://${HOST}:${POST}`);
+http.listen(PORT, () => {
+  const socket = new SocketWrapper();
+  socket.attachServer(http);
+  console.log(`Running on http://${HOST}:${PORT}`);
+});
