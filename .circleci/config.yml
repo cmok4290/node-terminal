@@ -1,22 +1,38 @@
 version: 2.1
-jobs: # a collection of steps
-  build: # runs not using workflows must have a `build` job as entry point
-    working_directory: ~/moksha/frontend # directory where steps will run
-    docker: # run the steps with docker
-      - image: circleci/node # primary container image
-    steps: # a collection of executable commands
-      - checkout: # special step to check out source code to working directory
-        path: ~/moksha
-      - restore_cache: # special step to restore the dependency cache
-        keys:
-          - dependency-cache-{{ checksum "package-lock.json" }}
-      - run:
-        name: install
-        command: npm install
-      - save_cache: # special step to save the dependency cache
-        paths:
-          - ./node_modules
-        key: v1-dependencies-{{ checksum "package.json" }}
-      - run: # always run tests
-        name: test
-        command: npm test
+executors:
+  node:
+    docker:
+      - image: circleci/node:latest
+
+jobs:
+  build-frontend:
+    executor: node
+    working_directory: ~/moksha/frontend
+    steps:
+      - checkout
+      - restore_cache:
+          key: v1-npm-deps-{{ checksum "package-lock.json" }}
+      - run: npm install
+      - save_cache:
+          key: v1-npm-deps-{{ checksum "package-lock.json" }}
+          paths: ./node_modules
+      - run: npm test
+  build-backend:
+    executor: node
+    working_directory: ~/moksha/backend
+    steps:
+      - checkout
+      - restore_cache:
+          key: v1-npm-deps-{{ checksum "package-lock.json" }}
+      - run: npm install
+      - save_cache:
+          key: v1-npm-deps-{{ checksum "package-lock.json" }}
+          paths: ./node_modules
+      - run: npm test
+
+workflows:
+  version: 2.1
+  build-app:
+    jobs:
+      - build-frontend
+      - build-backend
