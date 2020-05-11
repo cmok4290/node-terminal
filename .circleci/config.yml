@@ -1,18 +1,22 @@
 version: 2.1
-orbs:
-  node: circleci/node@1.1.6
-jobs:
-  build-and-test:
-    executor:
-      name: node/default
-    working_directory: frontend
-    steps:
-      - checkout
-      - node/with-cache:
-          steps:
-            - run: npm install
-            - run: npm test
-workflows:
-    build-and-test:
-      jobs:
-        - build-and-test
+jobs: # a collection of steps
+  build: # runs not using workflows must have a `build` job as entry point
+    working_directory: ~/moksha/frontend # directory where steps will run
+    docker: # run the steps with docker
+      - image: circleci/node # primary container image
+    steps: # a collection of executable commands
+      - checkout # special step to check out source code to working directory
+        path: ~/moksha
+      - restore_cache: # special step to restore the dependency cache
+        keys:
+          - dependency-cache-{{ checksum "package-lock.json" }}
+      - run:
+        name: install
+        command: npm install
+      - save_cache: # special step to save the dependency cache
+        paths:
+          - ./node_modules
+        key: v1-dependencies-{{ checksum "package.json" }}
+      - run: # always run tests
+        name: test
+        command: npm test
