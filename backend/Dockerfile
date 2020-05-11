@@ -16,5 +16,11 @@ COPY . .
 # map port to docker daemon
 EXPOSE 8080
 
+# set up user
+RUN useradd -ms /bin/bash explore
+USER explore
+WORKDIR /home/explore
+COPY me .
+
 # best practice, reduce number of processes running inside container
-CMD ["node","server.js"]
+CMD ["node","/usr/src/app/server.js"]
