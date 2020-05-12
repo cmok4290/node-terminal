@@ -1,38 +1,17 @@
 version: 2.1
-executors:
-  node:
-    docker:
-      - image: circleci/node:latest
-
+orbs:
+  node: circleci/node@1.1.6
 jobs:
-  build-frontend:
-    executor: node
-    working_directory: ~/moksha/frontend
+  build-and-test:
+    executor:
+      name: node/default
     steps:
       - checkout
-      - restore_cache:
-          key: v1-npm-deps-{{ checksum "package-lock.json" }}
-      - run: npm install
-      - save_cache:
-          key: v1-npm-deps-{{ checksum "package-lock.json" }}
-          paths: ./node_modules
-      - run: npm test
-  build-backend:
-    executor: node
-    working_directory: ~/moksha/backend
-    steps:
-      - checkout
-      - restore_cache:
-          key: v1-npm-deps-{{ checksum "package-lock.json" }}
-      - run: npm install
-      - save_cache:
-          key: v1-npm-deps-{{ checksum "package-lock.json" }}
-          paths: ./node_modules
-      - run: npm test
-
+      - node/with-cache:
+          steps:
+            - run: npm install
+            - run: npm test
 workflows:
-  version: 2.1
-  build-app:
-    jobs:
-      - build-frontend
-      - build-backend
+    build-and-test:
+      jobs:
+        - build-and-test
