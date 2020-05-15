@@ -1,14 +1,15 @@
 {
-  "name": "backend",
+  "name": "node-terminal",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A nodejs terminal backend",
+  "main": "server.js",
   "scripts": {
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Chheany Mok",
+  "license": "GPL-3.0",
   "dependencies": {
     "express": "^4.17.1",
     "node-pty": "^0.9.0",
