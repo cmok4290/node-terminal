@@ -1,5 +1,9 @@
 node_modules/
 npm-debug.log
-*.crt
-*.key
-*.pem
+.env
+certs/
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

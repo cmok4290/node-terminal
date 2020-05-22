@@ -1,21 +1,26 @@
 // server.js
 'use strict';
-const app = require('express')();
+const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
-const http = require('http').createServer(app);
-const options = {
-  cert: fs.readFileSync("./cert.pem"),
-  key: fs.readFileSync("./key.pem"),
-  ca: fs.readFileSync("./ca.pem")
-};
-const https = require('https').createServer(options, app);
+const https = require('https');
 const SocketWrapper = require('./SocketWrapper');
 
 // constants
-const HTTP_PORT = 80;
-const HTTPS_PORT = 443;
+let PORT = 443;
+if (process.env.NODE_ENV !== 'production') {
+  PORT = 8443;
+}
 const HOST = '127.0.0.1';
+
+// app 
+const app = express();
+app.use(cors());
+
+const privateKey = fs.readFileSync('./certs/server.key', 'utf8');
+const certificate = fs.readFileSync('./certs/server.crt', 'utf8');
+const credentials = {key: privateKey, cert: certificate};
+const httpsServer = https.createServer(credentials, app);
 
 app.use(cors());
 
@@ -24,14 +29,8 @@ app.get('/', (req, res) => {
   res.send('Terminal Server Running...');
 });
 
-http.listen(HTTP_PORT, () => {
-  //const socket = new SocketWrapper();
-  //socket.attachServer(http);
-  console.log(`Running on http://${HOST}:${HTTP_PORT}`);
-});
-
-https.listen(HTTPS_PORT, () => {
+httpsServer.listen(PORT, () => {
   const socket = new SocketWrapper();
   socket.attachServer(https);
-  console.log(`Running on https://${HOST}:${HTTP_PORT}`);
+  console.log(`Running on https://${HOST}:${PORT}`);
 });
