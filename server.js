@@ -3,33 +3,42 @@
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
+const helmet = require('helmet');
 const https = require('https');
 const SocketWrapper = require('./SocketWrapper');
 
-// constants
-let PORT = 443;
+let httpPort = 80;
+let httpsPort = 443;
+let host = 'https://cmok.dev';
+
 if (process.env.NODE_ENV !== 'production') {
-  PORT = 8443;
+  httpPort = 8080;
+  httpsPort = 8443;
+  host = '127.0.0.1';
 }
-const HOST = '127.0.0.1';
 
 // app 
 const app = express();
 app.use(cors());
+app.use(helmet());
+app.use(express.static('static'));
 
-const privateKey = fs.readFileSync('./certs/server.key', 'utf8');
-const certificate = fs.readFileSync('./certs/server.crt', 'utf8');
-const credentials = {key: privateKey, cert: certificate};
+const key = fs.readFileSync('/var/www/cmok/sslcert/privkey.pem');
+const cert = fs.readFileSync('/var/www/cmok/sslcert/fullchain.pem');
+const dhparam = fs.readFileSync('/var/www/cmok/sslcert/dh-strong.prm')
+const options = {key, cert, dhparam};
+const httpServer = http.createServer(app);
 const httpsServer = https.createServer(credentials, app);
 
 app.use(cors());
 
-// app
 app.get('/', (req, res) => {
-  res.send('Terminal Server Running...');
+  res.redirect('https://' + req.headers.host + req.url);
 });
 
-httpsServer.listen(PORT, () => {
+httpServer.listen(httpPort);
+
+httpsServer.listen(httpsPort, () => {
   const socket = new SocketWrapper();
   socket.attachServer(https);
   console.log(`Running on https://${HOST}:${PORT}`);
