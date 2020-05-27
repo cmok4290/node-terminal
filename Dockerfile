@@ -1,5 +1,5 @@
-# Latest LTS version of node
-FROM node:12
+# latest version of node
+FROM node
 
 # create app directory
 WORKDIR /usr/src/app
@@ -19,8 +19,7 @@ COPY me /home/explore
 COPY . .
 
 # map port to docker daemon
-# not supported by heroku
-# EXPOSE 8080
+EXPOSE 8080
 
 USER explore
 WORKDIR /home/explore
