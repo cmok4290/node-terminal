@@ -1,12 +1,12 @@
 // server.js
-'use strict';
-const express = require('express');
-const cors = require('cors');
-const http = require('http');
-const SocketWrapper = require('./SocketWrapper');
+"use strict";
+const express = require("express");
+const cors = require("cors");
+const http = require("http");
+const SocketWrapper = require("./SocketWrapper");
 
 let httpPort = 8080;
-let host = 'http://127.0.0.1';
+let host = "http://127.0.0.1";
 
 const app = express();
 app.use(cors());
@@ -14,8 +14,7 @@ app.use(cors());
 const httpServer = http.createServer(app);
 
 httpServer.listen(httpPort, () => {
-  console.log(`http server up at ${host}:${httpPort}...`);
+  console.log(`Server up at ${host}:${httpPort}...`);
   const socket = new SocketWrapper();
   socket.attachServer(httpServer);
 });
-
