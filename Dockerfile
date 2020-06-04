@@ -1,4 +1,4 @@
-# latest version of node
+# use latest node image
 FROM node
 
 # create app directory
@@ -11,7 +11,7 @@ RUN npm install
 # RUN npm ci --only=production
 
 # set up non-root user
-RUN userdel -r node
+RUN userdel -rf node
 RUN useradd -ms /bin/bash explore
 COPY me /home/explore
 
