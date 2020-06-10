@@ -1,47 +1,40 @@
 // PTYWrapper.js
-const os = require('os');
-const pty = require('node-pty');
+"use strict";
+const os = require("os");
+const pty = require("node-pty");
 
 class PTYWrapper {
+  /**
+   * A wrapper for each pseudo-terminal process
+   * and socket connection.
+   */
   constructor(socket) {
-    // uncomment for user os
-    // os.platform() === 'win32' ? 'powershell.exe' : 'bash';
-    this.shell = 'bash';
-    this.ptyProcess = null;
+    this.shell = process.env[os.platform() === "win32" ? "COMSPEC" : "SHELL"];
     this.socket = socket;
-
-    this.startPTYProcess();
+    this.ptyProcess = null;
   }
 
-  /**
-   * Spawn instance of pty with shell
-   */
-  startPTYProcess() {
+  start() {
+    // initialize node-pty with an appropriate shell
     this.ptyProcess = pty.spawn(this.shell, [], {
-      name: 'xterm-color',
-      cwd: process.env.HOME,
-      env: process.env
+      name: "xterm-color",
+      cols: 80,
+      rows: 20,
+      cwd: process.cwd(),
+      env: process.env,
     });
 
     // data event listener
-    this.ptyProcess.on('data', data => {
-      // send terminal data output to socket.io client
-      this.sendToClient(data);
+    this.ptyProcess.on("data", (data) => {
+      // emit data on socket output event
+      this.socket.emit("output", data);
     });
   }
 
-  /**
-   * Sends input to pseudo terminal process
-   */
+  // write input from socket client to pseudo-terminal process
   write(data) {
     this.ptyProcess.write(data);
-  }
-
-  sendToClient(data) {
-    // emit data to socket.io client in an event output
-    this.socket.emit('output', data);
   }
 }
 
 module.exports = PTYWrapper;
-

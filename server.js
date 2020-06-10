@@ -16,5 +16,7 @@ const httpServer = http.createServer(app);
 httpServer.listen(httpPort, () => {
   console.log(`Server up at ${host}:${httpPort}...`);
   const socket = new SocketWrapper();
-  socket.attachServer(httpServer);
+  socket.start(httpServer);
 });
+
+module.exports = app;

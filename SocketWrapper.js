@@ -1,36 +1,38 @@
 // SocketWrapper.js
-const socketIO = require("socket.io");
+"use strict";
+const socketio = require("socket.io");
 const PTYWrapper = require("./PTYWrapper");
 
 class SocketWrapper {
+  /**
+   * A wrapper for each socket connection
+   * and pseudo-terminal process.
+   */
   constructor() {
     this.socket = null;
     this.pty = null;
   }
 
-  attachServer(server) {
-    if (!server) {
-      throw new Error("Server not found...");
-    }
+  start(server) {
+    const io = socketio(server);
+    console.log("created socket server, awaiting client connection...");
 
-    const io = socketIO(server);
-    console.log("Created socket server, waiting for client connection...");
-    io.on("connection", socket => {
-      console.log("Client connected to socket...", socket.id);
+    io.on("connection", (socket) => {
+      // bind socket to object instance
       this.socket = socket;
-      
-      this.socket.on("disconnect", () => {
-        console.log("Client disconnected from socket...", socket.id);
-      });
+      console.log("client connected to", this.socket.id);
 
-      // create new pty service when client connects
+      // create pseudo-terminal process with socket to bind to
       this.pty = new PTYWrapper(this.socket);
+      this.pty.start();
 
-      // attach event listener for socket.io
-      this.socket.on("input", input => {
-        // input event emitted on client side
+      // socket events
+      this.socket.on("input", (input) => {
         this.pty.write(input);
-      })
+      });
+      this.socket.on("disconnect", (data) => {
+        console.log("client disconnected from", this.socket.id);
+      });
     });
   }
 }
