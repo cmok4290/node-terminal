@@ -7,7 +7,12 @@ const SocketWrapper = require("./SocketWrapper");
 
 let httpPort = 8080;
 let host = "http://127.0.0.1";
-let origins = ["http://localhost:3000", "https://cmok.dev"];
+let origins = [
+  "http://localhost:3000",
+  "https://localhost:3000",
+  "http://cmok.dev",
+  "https://cmok.dev",
+];
 
 const app = express();
 app.use(
