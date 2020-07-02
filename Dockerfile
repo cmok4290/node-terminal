@@ -10,17 +10,15 @@ COPY package*.json ./
 RUN npm install
 # RUN npm ci --only=production
 
-# set up non-root user
-RUN userdel -rf node
-RUN useradd -ms /bin/bash explore
-COPY me /home/explore
-
 # bundle app source
 COPY . .
 
 # map port to docker daemon
-EXPOSE 8080
+# EXPOSE 8080
 
+# strongly recommended to run images as a non-root user
+#RUN userdel -rf node
+RUN useradd -m explore
 USER explore
 WORKDIR /home/explore
 
